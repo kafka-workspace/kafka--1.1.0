@@ -33,5 +33,5 @@ class KafkaMetricsConfig(props: VerifiableProperties) {
   /**
    * The metrics polling interval (in seconds).
    */
-  val pollingIntervalSecs = props.getInt("kafka.metrics.polling.interval.secs", 10)
+  val pollingIntervalSecs = props.getInt("kafka.metrics.polling.interval.secs",  10)
 }
