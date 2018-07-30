@@ -240,8 +240,12 @@ public class Sender implements Runnable {
     }
 
     private long sendProducerData(long now) {
+        
+        
         Cluster cluster = metadata.fetch();
-
+        
+        
+        //获取准备发送的所有分区
         // get the list of partitions with data ready to send
         RecordAccumulator.ReadyCheckResult result = this.accumulator.ready(cluster, now);
 
@@ -256,6 +260,7 @@ public class Sender implements Runnable {
         }
 
         // remove any nodes we aren't ready to send to
+        //建立到主副本节点的网络连接，移除还没有准备好的节点
         Iterator<Node> iter = result.readyNodes.iterator();
         long notReadyTimeout = Long.MAX_VALUE;
         while (iter.hasNext()) {
@@ -266,6 +271,8 @@ public class Sender implements Runnable {
             }
         }
 
+        
+        //读取记录收集器，返回的每个主副本节点对应批记录列表，每个批记录对应一个分区
         // create produce requests
         Map<Integer, List<ProducerBatch>> batches = this.accumulator.drain(cluster, result.readyNodes,
                 this.maxRequestSize, now);
@@ -694,6 +701,7 @@ public class Sender implements Runnable {
         };
 
         String nodeId = Integer.toString(destination);
+        //客户端请求
         ClientRequest clientRequest = client.newClientRequest(nodeId, requestBuilder, now, acks != 0, callback);
         client.send(clientRequest, now);
         log.trace("Sent produce request to {}: {}", nodeId, requestBuilder);

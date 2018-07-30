@@ -34,6 +34,7 @@ class ControllerEventManager(controllerId: Int, rateAndTimeMetrics: Map[Controll
 
   @volatile private var _state: ControllerState = ControllerState.Idle
   private val putLock = new ReentrantLock()
+  // event队列
   private val queue = new LinkedBlockingQueue[ControllerEvent]
   private val thread = new ControllerEventThread(ControllerEventManager.ControllerEventThreadName)
 
@@ -46,6 +47,7 @@ class ControllerEventManager(controllerId: Int, rateAndTimeMetrics: Map[Controll
     thread.awaitShutdown()
   }
 
+  // KafkaController调用put方法，添加事件
   def put(event: ControllerEvent): Unit = inLock(putLock) {
     queue.put(event)
   }

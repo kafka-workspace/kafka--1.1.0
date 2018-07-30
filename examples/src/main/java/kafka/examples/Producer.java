@@ -40,17 +40,20 @@ public class Producer extends Thread {
         this.isAsync = isAsync;
     }
 
+    @Override
     public void run() {
         int messageNo = 1;
         while (true) {
             String messageStr = "Message_" + messageNo;
             long startTime = System.currentTimeMillis();
+            //异步发送消息
             if (isAsync) { // Send asynchronously
                 producer.send(new ProducerRecord<>(topic,
                     messageNo,
                     messageStr), new DemoCallBack(startTime, messageNo, messageStr));
             } else { // Send synchronously
                 try {
+                    //同步发送消息
                     producer.send(new ProducerRecord<>(topic,
                         messageNo,
                         messageStr)).get();
