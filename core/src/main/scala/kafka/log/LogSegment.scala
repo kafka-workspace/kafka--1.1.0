@@ -42,19 +42,19 @@ import scala.math._
  * A segment with a base offset of [base_offset] would be stored in two files, a [base_offset].index and a [base_offset].log file.
  *
  * @param log The message set containing log entries
- * @param offsetIndex The offset index
- * @param timeIndex The timestamp index
- * @param baseOffset A lower bound on the offsets in this segment
+ * @param offsetIndex The offset index 对应.index文件，OffsetIndex类型，对索引文件的操作进行了一些封装
+ * @param timeIndex The timestamp index 对应.timeIndex文件，和OffsetIndex类似
+ * @param baseOffset A lower bound on the offsets in this segment  基础位移，基之前举的例子里的238
  * @param indexIntervalBytes The approximate number of bytes between entries in the index
- * @param time The time instance
+ * @param time The time instance  创建时间
  */
 @nonthreadsafe
 class LogSegment private[log] (val log: FileRecords,
                                val offsetIndex: OffsetIndex,
                                val timeIndex: TimeIndex,
                                val txnIndex: TransactionIndex,
-                               val baseOffset: Long,
-                               val indexIntervalBytes: Int,
+                               val baseOffset: Long,//LogSegment中第一条消息的offset值
+                               val indexIntervalBytes: Int,//索引之间间隔的最小字节数
                                val rollJitterMs: Long,
                                val maxSegmentMs: Long,
                                val maxSegmentBytes: Int,
@@ -84,16 +84,22 @@ class LogSegment private[log] (val log: FileRecords,
     else throw new NoSuchFileException(s"Offset index file ${offsetIndex.file.getAbsolutePath} does not exist")
   }
 
+
+  //标识LogSegment对象创建时间
   private var created = time.milliseconds
 
   /* the number of bytes since we last added an entry in the offset index */
+  //记录自从上次添加索引项之后，在日志文件中累计加入的Message集合的字节数,用于判断下次索引项添加的时机
   private var bytesSinceLastIndexEntry = 0
 
+  //基于时间的日志滚动的时间戳
   /* The timestamp we used for time based log rolling */
   private var rollingBasedTimestamp: Option[Long] = None
 
   /* The maximum timestamp we see so far */
+  //目前为止最大的时间，也就是timeIndex文件最后一个entry的时间戳
   @volatile private var maxTimestampSoFar: Long = timeIndex.lastEntry.timestamp
+  //timeIndex文件最后一个entry的对应的offset
   @volatile private var offsetOfMaxTimestamp: Long = timeIndex.lastEntry.offset
 
   /* Return the size in bytes of this log segment */
@@ -128,22 +134,32 @@ class LogSegment private[log] (val log: FileRecords,
     if (records.sizeInBytes > 0) {
       trace("Inserting %d bytes at offset %d at position %d with largest timestamp %d at shallow offset %d"
           .format(records.sizeInBytes, firstOffset, log.sizeInBytes(), largestTimestamp, shallowOffsetOfMaxTimestamp))
+
+      //获取log现在的物理位置
       val physicalPosition = log.sizeInBytes()
       if (physicalPosition == 0)
         rollingBasedTimestamp = Some(largestTimestamp)
       // append the messages
       require(canConvertToRelativeOffset(largestOffset), "largest offset in message set can not be safely converted to relative offset.")
+      //写入消息后，返回写入的大小
+      // 调用Log#append添加消息，还是先写入内存的，
       val appendedBytes = log.append(records)
       trace(s"Appended $appendedBytes to ${log.file()} at offset $firstOffset")
       // Update the in memory max timestamp and corresponding offset.
+
+      // 判断是否需要生成索引，当前批次中，消息总大小为bytesSinceLastIndexEntry
+      //更细内存中最大的时间戳和相对应的offset
       if (largestTimestamp > maxTimestampSoFar) {
         maxTimestampSoFar = largestTimestamp
         offsetOfMaxTimestamp = shallowOffsetOfMaxTimestamp
       }
       // append an entry to the index (if needed)
+      // 自从上一次添加索引到现在累计的字节数如果大于添加索引的间隔字节数，则添加索引
       if(bytesSinceLastIndexEntry > indexIntervalBytes) {
+        // 生成索引
         offsetIndex.append(firstOffset, physicalPosition)
         timeIndex.maybeAppend(maxTimestampSoFar, offsetOfMaxTimestamp)
+        //添加完毕后，把bytesSinceLastIndexEntry置为0，重新累计消息字节数
         bytesSinceLastIndexEntry = 0
       }
       bytesSinceLastIndexEntry += records.sizeInBytes

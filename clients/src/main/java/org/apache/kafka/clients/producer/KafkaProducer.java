@@ -231,24 +231,36 @@ import static org.apache.kafka.common.serialization.ExtendedSerializer.Wrapper.e
 public class KafkaProducer<K, V> implements Producer<K, V> {
 
     private final Logger log;
+    //clientId的生成器
     private static final AtomicInteger PRODUCER_CLIENT_ID_SEQUENCE = new AtomicInteger(1);
     private static final String JMX_PREFIX = "kafka.producer";
     public static final String NETWORK_THREAD_PREFIX = "kafka-producer-network-thread";
 
+    //此生产者的唯一标识
     private final String clientId;
     // Visible for testing
     final Metrics metrics;
+    //分区选择器
     private final Partitioner partitioner;
+    //消息的最大长度,这个长度包含了消息头，序列化后的key和序列化后value的长度
     private final int maxRequestSize;
+    //发送单个消息的缓冲区大小
     private final long totalMemorySize;
+    //整个Kafka集群的元数据
     private final Metadata metadata;
+    //用于收集并缓存信息，等待Sender线程发送
     private final RecordAccumulator accumulator;
+    //发送消息的Sender服务，实现了Runnable接口，在ioThread中运行
     private final Sender sender;
+    //执行Sender任务发送消息的线程，称为"Sender线程"
     private final Thread ioThread;
+    //压缩算法，
     private final CompressionType compressionType;
     private final Sensor errors;
     private final Time time;
+    //key序列化生成器
     private final ExtendedSerializer<K> keySerializer;
+    //value序列化生成器
     private final ExtendedSerializer<V> valueSerializer;
     private final ProducerConfig producerConfig;
     private final long maxBlockTimeMs;
