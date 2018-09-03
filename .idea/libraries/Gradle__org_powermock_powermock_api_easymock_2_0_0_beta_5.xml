@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.powermock:powermock-api-easymock:2.0.0-beta.5">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.powermock/powermock-api-easymock/2.0.0-beta.5/7b9f13d4356668f1682ec73cc929926a2d85936e/powermock-api-easymock-2.0.0-beta.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.powermock/powermock-api-easymock/2.0.0-beta.5/467a0be0ff21e5a9e68871d1059fb96c842076fc/powermock-api-easymock-2.0.0-beta.5-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

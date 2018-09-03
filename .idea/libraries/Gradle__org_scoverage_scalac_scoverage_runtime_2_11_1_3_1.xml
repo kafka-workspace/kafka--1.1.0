@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: org.scoverage:scalac-scoverage-runtime_2.11:1.3.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.scoverage/scalac-scoverage-runtime_2.11/1.3.1/6f98957ae5ade845d20ac31e34f4142ddbb268a9/scalac-scoverage-runtime_2.11-1.3.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

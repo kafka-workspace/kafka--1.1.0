@@ -292,6 +292,7 @@ public final class Utils {
         if (c == null)
             throw new KafkaException("class cannot be null");
         try {
+            //这个方法会返回制定参数类型的所有构造器，包括public的和非public的，当然也包括private的。
             return c.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException e) {
             throw new KafkaException("Could not find a public no-argument constructor for " + c.getName(), e);

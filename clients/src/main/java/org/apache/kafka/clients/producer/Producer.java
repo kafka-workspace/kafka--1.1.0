@@ -68,16 +68,25 @@ public interface Producer<K, V> extends Closeable {
     Future<RecordMetadata> send(ProducerRecord<K, V> record);
 
     /**
+     *
+     * 发送消息，实际上是将消息放入RecordAccumulator暂存
+     */
+    /**
      * See {@link KafkaProducer#send(ProducerRecord, Callback)}
      */
     Future<RecordMetadata> send(ProducerRecord<K, V> record, Callback callback);
 
     /**
+     * 刷新操作；等待RecordAccumulator中所有消息发送完成，在刷新完成之前阻塞调用的线程
+     *
      * See {@link KafkaProducer#flush()}
      */
     void flush();
 
     /**
+     * Metadata的元数据会定时更新；负责从Metadata中获取指定Topic中的分区信息
+     *
+     *
      * See {@link KafkaProducer#partitionsFor(String)}
      */
     List<PartitionInfo> partitionsFor(String topic);
@@ -88,6 +97,8 @@ public interface Producer<K, V> extends Closeable {
     Map<MetricName, ? extends Metric> metrics();
 
     /**
+     * 关闭Producer对象，主要操作是设置close标志，等待RecordAccumulator中的消息清空，关闭Sender线程
+     *
      * See {@link KafkaProducer#close()}
      */
     void close();

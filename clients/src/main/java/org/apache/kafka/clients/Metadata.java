@@ -55,18 +55,28 @@ public final class Metadata {
     public static final long TOPIC_EXPIRY_MS = 5 * 60 * 1000;
     private static final long TOPIC_EXPIRY_NEEDS_UPDATE = -1L;
 
+    //两次发出更新Cluster保存的元数据信息的最小时间差
     private final long refreshBackoffMs;
+    //每隔多久更新一次，
     private final long metadataExpireMs;
+    //集群元数据的版本号，kafka集群元数据每更新成功一次，version的字段值增1【通过新旧版本号的比较，判断集群元数据是否更新完成】
     private int version;
+    //记录上一次更新元数据的时间戳(成功与否都记录)
     private long lastRefreshMs;
+    //上一次成功更新的时间戳
     private long lastSuccessfulRefreshMs;
     private AuthenticationException authenticationException;
+    //集群元数据
     private Cluster cluster;
+    //标识是否强制更新Cluster，这是触发Sender线程更新集群元数据的条件之一
     private boolean needUpdate;
     /* Topics with expiry time */
+    //当前已知的所有topic，在cluster字段中记录了Topic最新的元数据
     private final Map<String, Long> topics;
+    //监听Metadata更新的监听器集合
     private final List<Listener> listeners;
     private final ClusterResourceListeners clusterResourceListeners;
+    //是否需要更新全部Topic的元数据，一般情况下KakfaProducer只维护它用到的Topic
     private boolean needMetadataForAllTopics;
     private final boolean allowAutoTopicCreation;
     private final boolean topicExpiryEnabled;
@@ -135,8 +145,8 @@ public final class Metadata {
      * Request an update of the current cluster metadata info, return the current version before the update
      */
     public synchronized int requestUpdate() {
-        this.needUpdate = true;
-        return this.version;
+        this.needUpdate = true;//表示强制更新Cluster
+        return this.version;//返回当前Kafka集群元数据的版本号
     }
 
     /**
@@ -173,6 +183,7 @@ public final class Metadata {
             AuthenticationException ex = getAndClearAuthenticationException();
             if (ex != null)
                 throw ex;
+            //主线程和Sender通过wait/notify同步，更新元数据的操作急哦啊给Sender线程去完成
             if (remainingWaitMs != 0)
                 wait(remainingWaitMs);
             long elapsed = System.currentTimeMillis() - begin;
@@ -228,6 +239,7 @@ public final class Metadata {
         this.needUpdate = false;
         this.lastRefreshMs = now;
         this.lastSuccessfulRefreshMs = now;
+        //版本号增加1
         this.version += 1;
 
         if (topicExpiryEnabled) {

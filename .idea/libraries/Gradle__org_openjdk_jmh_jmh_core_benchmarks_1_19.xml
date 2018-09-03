@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.openjdk.jmh:jmh-core-benchmarks:1.19">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.openjdk.jmh/jmh-core-benchmarks/1.19/d2a6a4ed97a9fe9ec9869b6bfd4103af4976353c/jmh-core-benchmarks-1.19.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.openjdk.jmh/jmh-core-benchmarks/1.19/c33662d987d38cbe006a6e7b697243e4c919744e/jmh-core-benchmarks-1.19-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

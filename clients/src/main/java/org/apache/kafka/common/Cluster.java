@@ -34,14 +34,20 @@ import java.util.Set;
 public final class Cluster {
 
     private final boolean isBootstrapConfigured;
+    //节点信息列表
     private final List<Node> nodes;
     private final Set<String> unauthorizedTopics;
     private final Set<String> internalTopics;
     private final Node controller;
+    //记录了TopicPartition(主题分区)与PartitinInfo的映射关系
     private final Map<TopicPartition, PartitionInfo> partitionsByTopicPartition;
+    //Topic名称和PartitionInfo的映射关系，可以按照Topic名称查询其中全部分区的详细信息
     private final Map<String, List<PartitionInfo>> partitionsByTopic;
+    //存放必须有Leader副本的Partition
     private final Map<String, List<PartitionInfo>> availablePartitionsByTopic;
+    //Node与PartitionInfo的映射关系，可以按照即诶单Id查询其上分布的全部分区的详细信息
     private final Map<Integer, List<PartitionInfo>> partitionsByNode;
+    //BrokerId与Node节点之间的对应关系，方便按照BrokerId进行索引
     private final Map<Integer, Node> nodesById;
     private final ClusterResource clusterResource;
 

@@ -32,6 +32,7 @@ public class PartitionInfo {
     private final Node[] replicas;
     //分区中处于ISR的副本
     private final Node[] inSyncReplicas;
+    //分区中离线的副本
     private final Node[] offlineReplicas;
 
     // Used only by tests
