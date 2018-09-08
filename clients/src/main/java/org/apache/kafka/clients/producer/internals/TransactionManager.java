@@ -244,9 +244,13 @@ public class TransactionManager {
         return handler.result;
     }
 
+    //多组消息的发送和消费放入同一批处理内
     public synchronized TransactionalRequestResult sendOffsetsToTransaction(Map<TopicPartition, OffsetAndMetadata> offsets,
                                                                             String consumerGroupId) {
+
+        //允许事务
         ensureTransactional();
+        //状态正确
         maybeFailWithError();
         if (currentState != State.IN_TRANSACTION)
             throw new KafkaException("Cannot send offsets to transaction either because the producer is not in an " +
@@ -256,6 +260,7 @@ public class TransactionManager {
         AddOffsetsToTxnRequest.Builder builder = new AddOffsetsToTxnRequest.Builder(transactionalId,
                 producerIdAndEpoch.producerId, producerIdAndEpoch.epoch, consumerGroupId);
         AddOffsetsToTxnHandler handler = new AddOffsetsToTxnHandler(builder, offsets);
+        //队列
         enqueueRequest(handler);
         return handler.result;
     }

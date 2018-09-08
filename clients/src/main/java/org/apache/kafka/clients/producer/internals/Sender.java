@@ -640,6 +640,14 @@ public class Sender implements Runnable {
      * We can also retry OutOfOrderSequence exceptions for future batches, since if the first batch has failed, the future
      * batches are certain to fail with an OutOfOrderSequence exception.
      */
+    /**
+     * 重试条件
+     * 1.重试次数小于retries的设置值
+     * 2.可重试异常或者transactionManager.canRetry
+     * @param batch
+     * @param response
+     * @return
+     */
     private boolean canRetry(ProducerBatch batch, ProduceResponse.PartitionResponse response) {
         return batch.attempts() < this.retries &&
                 ((response.error.exception() instanceof RetriableException) ||
